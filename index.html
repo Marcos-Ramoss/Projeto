@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Namoro</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            border-radius: 10px;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-custom {
+            font-size: 20px;
+            padding: 15px 30px;
+            width: 150px;
+            margin: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-sim {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-nao {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .mensagem {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .perfil {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .perfil img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #28a745;
+        }
+
+        .perfil h3 {
+            font-size: 22px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mb-4">Você quer namorar comigo?</h1>
+        <div class="mensagem">
+            <p><strong>Escolha com sabedoria!</strong></p>
+        </div>
+
+        <div class="perfil">
+            <img src="amor.png" alt="Perfil da Gata">
+            <h3>Minha princesa Roberta</h3>
+            <span>Amo demais essa mina</span>
+        </div>
+
+        <button id="simBtn" class="btn btn-custom btn-sim">Sim</button>
+        <button id="naoBtn" class="btn btn-custom btn-nao">Não</button>
+    </div>
+
+    <script>
+        function moverBotaoNao() {
+            const botaoNao = document.getElementById('naoBtn');
+            const larguraTela = window.innerWidth;
+            const alturaTela = window.innerHeight;
+            const posX = Math.random() * (larguraTela - botaoNao.offsetWidth);
+            const posY = Math.random() * (alturaTela - botaoNao.offsetHeight);
+            botaoNao.style.position = 'absolute';
+            botaoNao.style.left = `${posX}px`;
+            botaoNao.style.top = `${posY}px`;
+        }
+
+        function criarCoracao() {
+            const coracao = document.createElement('div');
+            coracao.className = 'coracao';
+            document.body.appendChild(coracao);
+            coracao.style.left = `${Math.random() * window.innerWidth}px`;
+            coracao.style.animationDuration = `${Math.random() * 2 + 3}s`;
+            setTimeout(() => coracao.remove(), 5000);
+        }
+
+        setInterval(criarCoracao, 300);
+
+        document.getElementById('simBtn').addEventListener('click', () => {
+            window.location.href = 'galeria.html';
+        });
+
+        document.getElementById('naoBtn').addEventListener('mouseenter', moverBotaoNao);
+
+    </script>
+
+    <style>
+        .coracao {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 50% 75%, 18% 100%, 0% 35%);
+            animation: subir 5s infinite;
+        }
+
+        @keyframes subir {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
+</body>
+
+</html>

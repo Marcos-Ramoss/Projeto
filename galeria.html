@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Galeria</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #fff;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .galeria {
+            margin-top: 20px;
+        }
+
+        .galeria .item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .galeria img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .galeria img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .descricao {
+            font-size: 16px;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        /* Reação (coração/emoji) */
+        .reaction-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            padding: 8px 12px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .reaction-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Modal para visualizar imagem */
+        .modal-img {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-img img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: #f00;
+            color: #fff;
+        }
+
+        /* Estilo do botão embaralhar */
+        .shuffle-btn,
+        .add-img-btn,
+        .delete-btn,
+        .delete-comment-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .shuffle-btn:hover,
+        .add-img-btn:hover,
+        .delete-btn:hover,
+        .delete-comment-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para o campo de input de arquivo */
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .file-label:hover {
+            background-color: #218838;
+        }
+
+        .comment-section {
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .comment-section input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .comment-section .comments {
+            margin-top: 10px;
+        }
+
+        .comment-section .comment {
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        .comment-section .comment .delete-comment-btn {
+            background-color: red;
+            border: none;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+            float: right;
+        }
+
+        .comment-section .comment .delete-comment-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Meu Presente 😍</h1>
+
+    <!-- Música de fundo -->
+    <audio id="backgroundAudio" autoplay loop>
+        <source src="musica-romantica.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <!-- Botão de play/pause -->
+    <div style="margin: 20px;">
+        <button id="playPauseBtn" onclick="togglePlay()" class="shuffle-btn">
+            ▶️ Play
+        </button>
+    </div>
+
+    <!-- Botões para embaralhar imagens e adicionar nova imagem -->
+    <div style="margin-bottom: 20px;">
+        <button onclick="shuffleImages()" class="shuffle-btn">Embaralhar Imagens</button>
+        <label for="fileInput" class="file-label">Adicionar Nova Imagem</label>
+        <input id="fileInput" type="file" class="file-input" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <!-- Galeria -->
+    <div class="container galeria">
+        <div class="row" id="imageGallery">
+            <!-- Item da galeria -->
+            <div class="col-sm-12 col-md-4 item">
+                <img src="1.jpeg" alt="Foto 1" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">❤️</button>
+                <p class="descricao">Meu anjinho❤</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <!-- Replique este bloco para outras imagens -->
+            <!-- Outra foto com possibilidade de comentário -->
+            <div class="col-sm-12 col-md-4 item">
+                <img src="2.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao">minha pinxecha 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="3.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao">O cara mas sortudo 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="8.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao">Sou muito feliz 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="5.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao">A mulher mas Linda 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="7.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao"> Meu tudo, sou louco por vc 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="9.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao"> seu gatinho amor 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="16.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao"> Delicia de Mulher 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 col-md-4 item">
+                <img src="20.jpeg" alt="Foto 2" onclick="openModal(this)">
+                <button class="reaction-btn" onclick="react(this)">😍</button>
+                <p class="descricao"> Fofinha da minha vida 😍</p>
+                <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+
+                <!-- Seção de comentários -->
+                <div class="comment-section">
+                    <input type="text" placeholder="Comente sobre a foto..." class="comment-input"
+                        oninput="enableCommentSubmit(this)">
+                    <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                    <div class="comments"></div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Outros itens da galeria podem ser adicionados aqui -->
+        </div>
+    </div>
+
+    <!-- Modal para visualizar imagem -->
+    <div id="modal" class="modal-img" onclick="closeModal()">
+        <button class="close-btn">&times;</button>
+        <img id="modal-image" src="" alt="Visualização">
+    </div>
+
+    <script>
+        // Função para abrir o modal e exibir a imagem
+        function openModal(image) {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-image');
+            modal.style.display = 'flex';
+            modalImg.src = image.src;
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        // Função para reagir com um emoji
+        function react(button) {
+            const emoji = button.textContent;
+            button.textContent = emoji === '❤️' ? '😍' : '❤️'; // Alterna entre emojis
+        }
+
+        // Função para embaralhar imagens
+        // Função para embaralhar imagens junto com seus campos de comentário
+        function shuffleImages() {
+            const gallery = document.getElementById('imageGallery');
+            const items = Array.from(gallery.getElementsByClassName('item'));
+
+            // Embaralha os itens da galeria
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                // Troca os itens dentro do container
+                gallery.appendChild(items[j]);
+            }
+        }
+
+
+        // Função para visualizar a imagem selecionada no input de arquivo
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const newImageDiv = document.createElement('div');
+                    newImageDiv.classList.add('col-sm-12', 'col-md-4', 'item');
+
+                    newImageDiv.innerHTML = `
+                        <img src="${e.target.result}" alt="Nova Foto" onclick="openModal(this)">
+                        <button class="reaction-btn" onclick="react(this)">❤️</button>
+                        <p class="descricao">Nova Imagem</p>
+                        <button class="delete-btn" onclick="deleteImage(this)">🗑️</button>
+                        <div class="comment-section">
+                            <input type="text" placeholder="Comente sobre a foto..." class="comment-input" oninput="enableCommentSubmit(this)">
+                            <button class="shuffle-btn comment-submit-btn" onclick="addComment(this)" disabled>Comentar</button>
+                            <div class="comments"></div>
+                        </div>
+                    `;
+
+                    document.getElementById('imageGallery').appendChild(newImageDiv);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Função para excluir uma imagem
+        function deleteImage(button) {
+            const imageDiv = button.closest('.item');
+            imageDiv.remove();
+        }
+
+        // Função para alternar play/pause da música
+        function togglePlay() {
+            const audio = document.getElementById('backgroundAudio');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.textContent = '⏸️ Pause';
+            } else {
+                audio.pause();
+                playPauseBtn.textContent = '▶️ Play';
+            }
+        }
+
+        // Função para permitir o envio de comentário
+        function enableCommentSubmit(inputField) {
+            const submitButton = inputField.closest('.comment-section').querySelector('.comment-submit-btn');
+            submitButton.disabled = !inputField.value.trim();
+        }
+
+        // Função para adicionar comentário
+        function addComment(button) {
+            const inputField = button.closest('.comment-section').querySelector('.comment-input');
+            const commentText = inputField.value.trim();
+            if (commentText) {
+                const commentsDiv = button.closest('.comment-section').querySelector('.comments');
+                const commentDiv = document.createElement('div');
+                commentDiv.classList.add('comment');
+                commentDiv.innerHTML = `${commentText} <button class="delete-comment-btn" onclick="deleteComment(this)">🗑️</button>`;
+                commentsDiv.appendChild(commentDiv);
+                inputField.value = ''; // Limpa o campo de comentário
+                button.disabled = true; // Desabilita o botão de comentário
+            }
+        }
+
+        // Função para excluir um comentário
+        function deleteComment(button) {
+            const commentDiv = button.closest('.comment');
+            commentDiv.remove();
+        }
+    </script>
+
+</body>
+
+</html>
